@@ -1,5 +1,5 @@
 // Attempt to parse and retrieve a link
-function getLink(document_root, fs_crit){
+function getLink(document_root){
 	
 	// Get the image
 	// Check if div id = "i7" has any child nodes
@@ -18,13 +18,8 @@ function getLink(document_root, fs_crit){
 	return [img_src, page];
 }
 
-
-// "fullimg" is the common denominator for full sized image link
-// Will be used to check if "fullimg" link is present
-var fs = "fullimg"
-
 // Store getLink() result
-var links = getLink(document, fs);
+var links = getLink(document);
 
 // If links is not null
 if (links){
