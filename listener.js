@@ -49,19 +49,19 @@ chrome.runtime.onMessage.addListener(function(request, sender) {
 		url: request.img
 	});
 	
-	// And if a next page link is present
-	if (request.next) {
-		getCurrentTabUrl((url) => {
-			if (request.next != url) {
-				// Navigate the current tab to the link accordingly
-				chrome.tabs.update({
-				url: request.next
-				});
-			} else {
-				alert('end of the image set');
-			}
-		});
-	}
+	// Get the current url
+	getCurrentTabUrl((url) => {
+		// If the 'next' link differs from the current URL
+		if (request.next != url) {
+			// Navigate the current tab to the link accordingly
+			chrome.tabs.update({
+			url: request.next
+			});
+		} else {
+			// Otherwise just send a message
+			alert('end of the image set');
+		}
+	});
   }
   // If not, send an alert and do nothing
   else {
