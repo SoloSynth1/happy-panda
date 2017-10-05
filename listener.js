@@ -51,21 +51,21 @@ chrome.runtime.onMessage.addListener(function(request, sender) {
 	
 	// Get the current url
 	getCurrentTabUrl((url) => {
-		// If the 'next' link differs from the current URL
-		if (request.next != url) {
-			// Navigate the current tab to the link accordingly
-			chrome.tabs.update({
-			url: request.next
-			});
-		} else {
-			// Otherwise just send a message
-			alert('end of the image set');
-		}
+	  // If the 'next' link differs from the current URL
+	  if (request.next != url) {
+	    // Navigate the current tab to the link accordingly
+	    chrome.tabs.update({
+	      url: request.next
+	    });
+	  } else {
+	    // Otherwise just send a message
+	    alert('end of the image set');
+	  }
 	});
   }
   // If not, send an alert and do nothing
   else {
-	  alert('No object to download');
+	alert('No object to download');
   }
 });
 
