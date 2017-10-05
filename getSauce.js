@@ -1,6 +1,3 @@
-// This function is from chrome extension tutorial
-
-
 // Attempt to parse and retrieve a link
 function getLink(document_root, fs_crit){
 	
