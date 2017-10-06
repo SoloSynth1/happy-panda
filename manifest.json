@@ -3,7 +3,7 @@
 
   "name": "HappyPanda: E-Hentai/ExHentai image grabber",
   "description": "This extension downloads the image shown on the current E-Hentai/ExHentai page.",
-  "version": "0.1",
+  "version": "0.2",
   
   "author": "SoloSynth1",
 
@@ -19,6 +19,7 @@
   "permissions": [
     "activeTab",
     "storage",
-	"downloads"
+    "downloads",
+    "*://*/*"
   ]
 }
