@@ -38,39 +38,49 @@ function getCurrentTabUrl(callback) {
   // alert(url); // Shows "undefined", because chrome.tabs.query is async.
 }
 
+// Repeat when page is updated, only active when initiated by clicking the extension icon
+function onUpateListener(tab, info) {
+  if (info.status === 'complete') {
+    chrome.tabs.executeScript(null, {file: 'getSauce.js'});
+  }
+}
+
 // Set up a listener for getSauce result
 chrome.runtime.onMessage.addListener(function(request, sender) {
-	
+  
   // If "getSauce" message is received
   if (request.action == "getSauce") {
-	  
-	// Download the returned image source
-	chrome.downloads.download({
-		url: request.img
-	});
-	
-	// Get the current url
-	getCurrentTabUrl((url) => {
-	  // If the 'next' link differs from the current URL
-	  if (request.next != url) {
-	    // Navigate the current tab to the link accordingly
-	    chrome.tabs.update({
-	      url: request.next
-	    });
-	  } else {
-	    // Otherwise just send a message
-	    alert('end of the image set');
-	  }
-	});
+    
+  // Download the returned image source
+  chrome.downloads.download({
+    url: request.img
+  });
+  
+  // Get the current url
+  getCurrentTabUrl((url) => {
+    // If the 'next' link differs from the current URL
+    if (request.next != url) {
+      // Navigate the current tab to the link accordingly
+      chrome.tabs.update({
+        url: request.next
+      });
+    } else {
+      // Otherwise just send a message
+      alert('end of the image set');
+      // Remove onUpdated listener once the action has been completed
+      chrome.tabs.onUpdated.removeListener(onUpateListener);
+    }
+  });
   }
   // If not, send an alert and do nothing
   else {
-	alert('No object to download');
+    alert('No object to download');
   }
 });
 
 // On click
 chrome.browserAction.onClicked.addListener(function(tab) {
+  chrome.tabs.onUpdated.addListener(onUpateListener);
 	// Run the getSauce.js script
-	chrome.tabs.executeScript(null, {file: "getSauce.js"});
+  chrome.tabs.executeScript(null, {file: 'getSauce.js'});
 });
