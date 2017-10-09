@@ -29,17 +29,13 @@ if (links){
 		// Tell listener.js to "getSauce"
 		action: "getSauce",
 		
-		// Relay the image source
-		img: links[0],
-		
-		// And the next page link
-		next: links[1]
+		// Relay the image source, and next page
+		obj: links
 	});
 }	else {
 		// Otherwise, send "NoSauce" and empty links
 		chrome.runtime.sendMessage({
 		action: "noSauce",
-		img: null,
-		next: null
+		obj: links
 	});
 }
