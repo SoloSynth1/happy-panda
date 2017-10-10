@@ -1,5 +1,5 @@
-// This function is from chrome extension tutorial
-function getCurrentTabUrl(callback) {
+// Get the current tab when icon is clicked
+function getCurrentTab(callback) {
   // Query filter to be passed to chrome.tabs.query - see
   // https://developer.chrome.com/extensions/tabs#method-query
   var queryInfo = {
@@ -15,62 +15,52 @@ function getCurrentTabUrl(callback) {
     // exactly one tab.
     var tab = tabs[0];
 
-    // A tab is a plain object that provides information about the tab.
-    // See https://developer.chrome.com/extensions/tabs#type-Tab
-    var url = tab.url;
-
-    // tab.url is only available if the "activeTab" permission is declared.
-    // If you want to see the URL of other tabs (e.g. after removing active:true
-    // from |queryInfo|), then the "tabs" permission is required to see their
-    // "url" properties.
-    console.assert(typeof url == 'string', 'tab.url should be a string');
-
-    callback(url);
+    callback(tab);
   });
-
-  // Most methods of the Chrome extension APIs are asynchronous. This means that
-  // you CANNOT do something like this:
-  //
-  // var url;
-  // chrome.tabs.query(queryInfo, (tabs) => {
-  //   url = tabs[0].url;
-  // });
-  // alert(url); // Shows "undefined", because chrome.tabs.query is async.
 }
 
 // Repeat when page is updated, only active when initiated by clicking the extension icon
-function onUpateListener(tab, info) {
+function onUpateListener(tabId, info) {
+
+  // if load is complete
   if (info.status === 'complete') {
-    chrome.tabs.executeScript(null, {file: 'getSauce.js'});
+
+    // if the updated tab is indeed the designated tab (Issue #5)
+    if (tabId == DesignatedTab.id) {
+      // Run getSauce.js on the tab (Issue #4)
+      chrome.tabs.executeScript(tabId, {file: 'getSauce.js'});
+    }
+    
   }
 }
 
 // Set up a listener for getSauce result
 chrome.runtime.onMessage.addListener(function(request, sender) {
-  
+
   // If "getSauce" message is received
   if (request.action == "getSauce") {
     
-  // Download the returned image source
-  chrome.downloads.download({
-    url: request.img
-  });
-  
-  // Get the current url
-  getCurrentTabUrl((url) => {
+    // Download the returned image source
+    chrome.downloads.download({
+      url: request.img
+    });
+    
     // If the 'next' link differs from the current URL
     if (request.next != url) {
-      // Navigate the current tab to the link accordingly
-      chrome.tabs.update({
+
+      // Update the DesignatedTab to the link accordingly (Issue #4)
+      chrome.tabs.update(DesignatedTab.id, {
         url: request.next
       });
+      url = request.next
     } else {
+
       // Otherwise just send a message
       alert('end of the image set');
+
       // Remove onUpdated listener once the action has been completed
       chrome.tabs.onUpdated.removeListener(onUpateListener);
     }
-  });
   }
   // If not, send an alert and do nothing
   else {
@@ -80,7 +70,23 @@ chrome.runtime.onMessage.addListener(function(request, sender) {
 
 // On click
 chrome.browserAction.onClicked.addListener(function(tab) {
+  
+  // Create an empty URL for later if checks in onMessage listener.
+  url = ''
+
+  //remember the clicked tab as DesignatedTab
+  DesignatedTab = tab;
+
+  chrome.tabs.executeScript(tab.id, {file: 'getSauce.js'});
+
+  // // Get the Current tab, ctab
+  // getCurrentTab((ctab) =>{
+  //   // Run the getSauce.js script in the tab
+  //   chrome.tabs.executeScript(ctab.id, {file: 'getSauce.js'});
+  // });
+
+  // alert(ctab.id);
+
+  // Set up onUpdate Listener on the DesignatedTab
   chrome.tabs.onUpdated.addListener(onUpateListener);
-	// Run the getSauce.js script
-  chrome.tabs.executeScript(null, {file: 'getSauce.js'});
 });
